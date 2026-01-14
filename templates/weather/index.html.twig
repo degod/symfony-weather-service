@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Weather Service{% endblock %}
+
+{% block body %}
+<style>
+    body {
+        background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .weather-card {
+        max-width: 420px;
+        margin: 80px auto;
+        padding: 32px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .weather-card h1 {
+        margin-bottom: 24px;
+        text-align: center;
+        font-size: 1.8rem;
+    }
+
+    .weather-card label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+
+    .weather-card input {
+        width: 94%;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        font-size: 1rem;
+        margin-bottom: 16px;
+    }
+
+    .weather-card button {
+        width: 100%;
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        background: #0284c7;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .weather-card button:hover {
+        background: #0369a1;
+    }
+
+    .result {
+        margin-top: 24px;
+        padding: 16px;
+        border-radius: 12px;
+        background: #f8fafc;
+        font-size: 0.95rem;
+    }
+
+    .result p {
+        margin: 8px 0;
+    }
+
+    .loading {
+        text-align: center;
+        color: #64748b;
+        font-style: italic;
+    }
+
+    .error {
+        color: #dc2626;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>
+
+<div class="weather-card">
+    <h1>🌤️ Weather Checker</h1>
+
+    <form id="weatherForm">
+        <label for="city">City</label>
+        <input type="text" id="city" name="city" placeholder="e.g. Sofia" required>
+        <button type="submit">Check Weather</button>
+    </form>
+
+    <div id="result" class="result" style="display:none;"></div>
+</div>
+
+<script>
+document.getElementById('weatherForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const cityInput = document.getElementById('city');
+    const city = cityInput.value.trim();
+    if (!city) return;
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.style.display = 'block';
+    resultDiv.className = 'result loading';
+    resultDiv.textContent = 'Fetching weather...';
+
+    try {
+        const response = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+
+        if (!response.ok) {
+            const err = await response.json();
+            resultDiv.className = 'result error';
+            resultDiv.textContent = err.error ?? 'Failed to fetch weather';
+            return;
+        }
+
+        const data = await response.json();
+
+        resultDiv.className = 'result';
+        resultDiv.innerHTML = `
+            <p><strong>City:</strong> ${data.city}</p>
+            <p><strong>Temperature:</strong> ${data.temperature} °C</p>
+            <p><strong>Average (last 10 days):</strong> ${data.average_last_10_days.toFixed(1)} °C</p>
+            <p><strong>Trend:</strong> ${data.trend}</p>
+        `;
+    } catch (error) {
+        resultDiv.className = 'result error';
+        resultDiv.textContent = 'Unexpected error occurred';
+        console.error(error);
+    }
+});
+</script>
+{% endblock %}
