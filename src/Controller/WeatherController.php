@@ -30,8 +30,7 @@ final class WeatherController extends AbstractController
 
         return $this->json([
             'city' => $result->city,
-            'temperature' => $result->temperature,
-            'trend' => $result->trend->value,
+            'temperature' => $result->temperature . " " . $result->trend->value,
             'average_last_10_days' => $result->averageLastTenDays,
         ]);
     }
