@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\WeatherTemperature;
@@ -16,28 +18,55 @@ class WeatherTemperatureRepository extends ServiceEntityRepository
         parent::__construct($registry, WeatherTemperature::class);
     }
 
-    //    /**
-    //     * @return WeatherTemperature[] Returns an array of WeatherTemperature objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('w')
-    //            ->andWhere('w.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('w.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function saveDailyTemperature(string $city, int $temperature): void
+    {
+        $date = new \DateTimeImmutable('today');
 
-    //    public function findOneBySomeField($value): ?WeatherTemperature
-    //    {
-    //        return $this->createQueryBuilder('w')
-    //            ->andWhere('w.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $existing = $this->findOneBy([
+            'city' => strtolower($city),
+            'date' => $date,
+        ]);
+
+        if ($existing !== null) {
+            return;
+        }
+
+        $entity = new WeatherTemperature($city, $temperature, $date);
+         
+        // Change $this->_em to $this->getEntityManager()
+        $em = $this->getEntityManager();
+        $em->persist($entity);
+        $em->flush();
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getLastTenDaysTemperatures(string $city): array
+    {
+        return array_map(
+            static fn (WeatherTemperature $wt) => $wt->getTemperature(),
+            $this->createQueryBuilder('w')
+                ->where('w.city = :city')
+                ->setParameter('city', strtolower($city))
+                ->orderBy('w.date', 'DESC')
+                ->setMaxResults(10)
+                ->getQuery()
+                ->getResult()
+        );
+    }
+
+    public function deleteOlderThanTenDays(string $city): void
+    {
+        $cutoff = new \DateTimeImmutable('-10 days');
+
+        $this->createQueryBuilder('w')
+            ->delete()
+            ->where('w.city = :city')
+            ->andWhere('w.date < :cutoff')
+            ->setParameter('city', strtolower($city))
+            ->setParameter('cutoff', $cutoff)
+            ->getQuery()
+            ->execute();
+    }
 }

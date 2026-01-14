@@ -1,26 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Repository\WeatherTemperatureRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: WeatherTemperatureRepository::class)]
+#[ORM\Table(name: 'weather_temperatures')]
+#[ORM\UniqueConstraint(columns: ['city', 'date'])]
 class WeatherTemperature
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private int $id;
 
     #[ORM\Column(length: 255)]
-    private ?string $city = null;
+    private string $city;
 
     #[ORM\Column]
-    private ?int $temperature = null;
+    private int $temperature;
 
-    #[ORM\Column]
-    private ?\DateTime $date = null;
+    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    private \DateTimeInterface $date;
+
+    public function __construct(string $city, int $temperature, \DateTimeInterface $date)
+    {
+        $this->city = strtolower($city);
+        $this->temperature = $temperature;
+        $this->date = $date;
+    }
 
     public function getId(): ?int
     {
