@@ -18,7 +18,6 @@ final class WeatherTemperatureRepositoryTest extends KernelTestCase
         $container = self::getContainer();
         $this->repository = $container->get(WeatherTemperatureRepository::class);
 
-        // Get the entity manager and build the schema for this specific test run
         $entityManager = $container->get('doctrine.orm.entity_manager');
         $metadatas = $entityManager->getMetadataFactory()->getAllMetadata();
         
