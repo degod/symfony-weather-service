@@ -123,7 +123,6 @@ document.getElementById('weatherForm').addEventListener('submit', async (e) => {
             <p><strong>City:</strong> ${data.city}</p>
             <p><strong>Temperature:</strong> ${data.temperature} °C</p>
             <p><strong>Average (last 10 days):</strong> ${data.average_last_10_days.toFixed(1)} °C</p>
-            <p><strong>Trend:</strong> ${data.trend}</p>
         `;
     } catch (error) {
         resultDiv.className = 'result error';
