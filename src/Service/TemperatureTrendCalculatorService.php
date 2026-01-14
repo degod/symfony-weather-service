@@ -22,14 +22,10 @@ final class TemperatureTrendCalculatorService
 
         $average = array_sum($lastTenDaysTemperatures) / count($lastTenDaysTemperatures);
 
-        if ($currentTemperature > $average) {
-            return TemperatureTrendEnum::HOTTER;
-        }
-
-        if ($currentTemperature < $average) {
-            return TemperatureTrendEnum::COLDER;
-        }
-
-        return TemperatureTrendEnum::SAME;
+        return match (true) {
+            $currentTemperature > $average => TemperatureTrendEnum::HOTTER,
+            $currentTemperature < $average => TemperatureTrendEnum::COLDER,
+            default => TemperatureTrendEnum::SAME,
+        };
     }
 }

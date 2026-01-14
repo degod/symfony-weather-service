@@ -33,7 +33,6 @@ class WeatherTemperatureRepository extends ServiceEntityRepository
 
         $entity = new WeatherTemperature($city, $temperature, $date);
          
-        // Change $this->_em to $this->getEntityManager()
         $em = $this->getEntityManager();
         $em->persist($entity);
         $em->flush();

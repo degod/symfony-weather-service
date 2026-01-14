@@ -22,10 +22,14 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    # configuration for 
+    # configuration for weather provider
     App\Service\FakeWeatherProviderService: ~
     App\Service\CachedWeatherProviderService:
         arguments:
             $decoratedProvider: '@App\Service\FakeWeatherProviderService'
             $cache: '@cache.app' 
             $ttl: 3600
+
+    # implementation binding
+    App\Service\WeatherProviderInterface:
+        alias: App\Service\CachedWeatherProviderService
